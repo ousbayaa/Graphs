@@ -1,3 +1,18 @@
+import random
+
+class Queue():
+    def __init__(self):
+        self.queue = []
+    def enqueue(self, value):
+        self.queue.append(value)
+    def dequeue(self):
+        if self.size() > 0:
+            return self.queue.pop(0)
+        else:
+            return None
+    def size(self):
+        return len(self.queue)
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -32,35 +47,67 @@ class SocialGraph:
         """
         Takes a number of users and an average number of friendships
         as arguments
-
         Creates that number of users and a randomly distributed friendships
         between those users.
-
         The number of users must be greater than the average number of friendships.
         """
         # Reset graph
         self.last_id = 0
         self.users = {}
         self.friendships = {}
-        # !!!! IMPLEMENT ME
-
+        
         # Add users
+        for i in range(0, num_users):
+            self.add_user(f'User {i}')
 
+        # generate possible friendships
+        possible_friendships = []
+
+        # avoid dups by making sure the first number is smaller than the second
+        for user_id in self.users:
+            for friend_id in range(user_id + 1, self.last_id + 1):
+                possible_friendships.append((user_id, friend_id))
+
+        # shuffle the possible friendships
+        random.shuffle(possible_friendships)
         # Create friendships
+        for i in range(num_users * avg_friendships // 2):
+            friendship = possible_friendships[i]
+            self.add_friendship(friendship[0], friendship[1])
 
     def get_all_social_paths(self, user_id):
         """
         Takes a user's user_id as an argument
-
+        * Take user_id as starting_node
         Returns a dictionary containing every user in that user's
         extended network with the shortest friendship path between them.
-
+        * The claim for BFS is that the first time a node is discovered during the traversal, that distance from the source would give us the shortest path
         The key is the friend's ID and the value is the path.
         """
         visited = {}  # Note that this is a dictionary, not a set
-        # !!!! IMPLEMENT ME
-        return visited
 
+        curr_friends = self.friendships[user_id]
+
+        q = Queue()
+        q.enqueue([user_id])
+
+        while q.size() > 0:
+            path = q.dequeue()
+            last_friend = path[-1]
+            # print("last_friend", last_friend)
+
+            if last_friend not in visited:
+                visited[last_friend] = path
+
+                for value in self.friendships[last_friend]:
+                    new_path = list(path)
+                    new_path.append(value)
+                    # print("new_path", new_path)
+                    q.enqueue(new_path)
+                    print("value:", value)
+
+        print("visited")
+        return visited
 
 if __name__ == '__main__':
     sg = SocialGraph()
