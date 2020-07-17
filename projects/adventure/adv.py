@@ -29,6 +29,33 @@ player = Player(world.starting_room)
 # traversal_path = ['n', 'n']
 traversal_path = []
 
+# create a dictionary/parent dictionary
+visited = {}
+
+navi = {"n": "s", "s": "n", "e": "w", "w":"e" } # navigate back from where i came
+
+revPath = []
+
+# ssave and show direction
+visited[player.current_room.id] = player.current_room.get_exits() 
+
+while len(visited) < len(room_graph): 
+    print("Current Room:", player.current_room.id)
+    if player.current_room.id not in visited: # In a new unvisited room
+        revDirection = revPath[-1] # to back track where i came from
+        visited[player.current_room.id] = player.current_room.get_exits() # Save current room in visited
+        visited[player.current_room.id].remove(revDirection) #remove the previous room from
+    
+    elif len(visited[player.current_room.id]) == 0: #if there are no more exits inthe room
+        revDirection = revPath.pop() # to back track where i came from and reemove from revPath
+        traversal_path.append(revDirection) # save path
+        player.travel(revDirection) # go back!
+    
+    elif len(visited[player.current_room.id]) > 0: # if there are more exits to explore
+        direction = visited[player.current_room.id].pop()
+        revPath.append(navi[direction]) #set revPath for current room
+        traversal_path.append(direction) # set path for current direction
+        player.travel(direction) # move forward!
 
 
 # TRAVERSAL TEST
@@ -60,3 +87,5 @@ while True:
         break
     else:
         print("I did not understand that command.")
+
+## 1003 moves
